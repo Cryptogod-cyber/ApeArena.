@@ -39,7 +39,7 @@ body {background:linear-gradient(45deg,#ff006e,#8338ec,#3a86ff,#06ffa5);backgrou
 <div class="header">🦍 APE ARENA 🦍<br><span style="font-size:0.5em;font-weight:400">TOP 5 HOLDERS GET REWARDS | 100K MC = SOL GIVEAWAYS</span></div>
 <div class="main-grid">
 <div class="embed-container">
-<iframe src="https://pumpembed.com/embed/YOUR_MINT_ID_HERE" allowfullscreen></iframe>
+<iframe src="https://pumpembed.com/embed/coin/Hw15A3gHVDMxsM12rT2fwFg4ei4fMZvkLJcre2vWpump" allowfullscreen></iframe>
 </div>
 <div class="sidebar">
 <div class="mc-alert" id="mcAlert">🚀 100K MC HIT! SOL GIVEAWAYS LIVE! 🚀</div>
@@ -53,7 +53,7 @@ body {background:linear-gradient(45deg,#ff006e,#8338ec,#3a86ff,#06ffa5);backgrou
 </div>
 </div>
 <script>
-const MINT_ID='YOUR_MINT_ID_HERE';
+const MINT_ID='coin/Hw15A3gHVDMxsM12rT2fwFg4ei4fMZvkLJcre2vWpump';
 let holders=[],recentBuys=[];
 particlesJS('particles',{particles:{number:{value:100},color:{value:['#ff006e','#8338ec','#3a86ff','#06ffa5','#ffd700']},size:{value:4},move:{speed:3}}});
 async function updateTokenData(){try{const res=await fetch(`https://frontend-api.pump.fun/coins/${MINT_ID}`);const data=await res.json();const mc=data.mc*data.v24hUSD||0;document.getElementById('ticker').innerHTML=`$${data.priceChange?.toFixed(6)||0}<br>MC: $${mc.toLocaleString()}`;if(mc>=100000&&!document.getElementById('mcAlert').style.display){document.getElementById('mcAlert').style.display='block';confetti({particleCount:150,spread:70,origin:{y:0.6}});setTimeout(()=>document.getElementById('mcAlert').style.display='none',10000);}}catch(e){console.log('API error');}}
