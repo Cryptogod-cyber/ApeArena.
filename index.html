@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APE ARENA</title>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+* {margin:0;padding:0;box-sizing:border-box;}
+body {background:linear-gradient(45deg,#ff006e,#8338ec,#3a86ff,#06ffa5);background-size:400% 400%;animation:gradientShift 15s ease infinite;font-family:'Orbitron',monospace;color:#fff;overflow-x:hidden;height:100vh;}
+@keyframes gradientShift {0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+#particles {position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;}
+.header {text-align:center;padding:20px;font-size:clamp(1.8em,6vw,5em);font-weight:900;text-shadow:0 0 30px #fff;z-index:10;position:relative;animation:glow 2s ease-in-out infinite alternate;}
+@keyframes glow {from {text-shadow:0 0 20px #fff;}to {text-shadow:0 0 50px #ff006e,0 0 70px #8338ec;}}
+.main-grid {display:grid;grid-template-columns:1fr 450px;height:calc(100vh - 140px);gap:20px;padding:20px;z-index:10;position:relative;}
+.embed-container {background:rgba(0,0,0,0.4);border-radius:25px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.6);height:70vh;}
+.embed-container iframe {width:100%;height:100%;border:none;border-radius:25px;}
+.sidebar {background:rgba(0,0,0,0.85);border-radius:25px;padding:25px;backdrop-filter:blur(25px);box-shadow:0 25px 50px rgba(0,0,0,0.6);overflow-y:auto;}
+.mc-alert {background:linear-gradient(45deg,#ffd700,#ffed4e);color:#000;padding:15px;border-radius:15px;text-align:center;font-weight:900;font-size:1.4em;margin-bottom:20px;animation:bounce 1s infinite;display:none;}
+@keyframes bounce {0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.price-ticker {font-size:2em;font-weight:900;text-align:center;margin-bottom:20px;animation:pulse 2s infinite;background:rgba(255,255,255,0.1);padding:15px;border-radius:15px;}
+@keyframes pulse {0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+.leaderboard h3,.leaderboard h4 {text-align:center;margin-bottom:20px;font-size:1.5em;}
+.leader-item {display:flex;justify-content:space-between;align-items:center;padding:15px;margin:10px 0;background:linear-gradient(90deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05));border-radius:15px;transition:all 0.3s;position:relative;overflow:hidden;}
+.leader-item:hover {transform:translateX(10px);box-shadow:0 15px 30px rgba(255,0,110,0.4);}
+.leader-item.top5 {border-left:5px solid #ffd700;background:rgba(255,215,0,0.2);animation:goldFlash 1s ease;}
+@keyframes goldFlash {0%,100%{box-shadow:0 0 20px #ffd700;}50%{box-shadow:0 0 40px #ffd700;}}
+.rank {font-size:1.5em;font-weight:900;color:#ffd700;min-width:40px;}
+.new-buy {animation:newBuyPop 0.6s ease-out;}
+@keyframes newBuyPop {0%{transform:scale(0.8) rotate(-10deg);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1) rotate(0);opacity:1;}}
+.reward-badge {position:absolute;top:5px;right:10px;background:#00ff88;color:#000;padding:5px 10px;border-radius:20px;font-size:0.8em;font-weight:700;}
+@media (max-width:1100px) {.main-grid {grid-template-columns:1fr;}.sidebar {order:-1;}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="header">🦍 APE ARENA 🦍<br><span style="font-size:0.5em;font-weight:400">TOP 5 HOLDERS GET REWARDS | 100K MC = SOL GIVEAWAYS</span></div>
+<div class="main-grid">
+<div class="embed-container">
+<iframe src="https://pumpembed.com/embed/YOUR_MINT_ID_HERE" allowfullscreen></iframe>
+</div>
+<div class="sidebar">
+<div class="mc-alert" id="mcAlert">🚀 100K MC HIT! SOL GIVEAWAYS LIVE! 🚀</div>
+<div class="price-ticker" id="ticker">Loading...</div>
+<div class="leaderboard">
+<h3>🏆 TOP 5 HOLDERS 🏆</h3>
+<div id="leaderboard"></div>
+<h4 style="color:#00ff88;">📈 RECENT BUYS</h4>
+<div id="recentBuys"></div>
+</div>
+</div>
+</div>
+<script>
+const MINT_ID='YOUR_MINT_ID_HERE';
+let holders=[],recentBuys=[];
+particlesJS('particles',{particles:{number:{value:100},color:{value:['#ff006e','#8338ec','#3a86ff','#06ffa5','#ffd700']},size:{value:4},move:{speed:3}}});
+async function updateTokenData(){try{const res=await fetch(`https://frontend-api.pump.fun/coins/${MINT_ID}`);const data=await res.json();const mc=data.mc*data.v24hUSD||0;document.getElementById('ticker').innerHTML=`$${data.priceChange?.toFixed(6)||0}<br>MC: $${mc.toLocaleString()}`;if(mc>=100000&&!document.getElementById('mcAlert').style.display){document.getElementById('mcAlert').style.display='block';confetti({particleCount:150,spread:70,origin:{y:0.6}});setTimeout(()=>document.getElementById('mcAlert').style.display='none',10000);}}catch(e){console.log('API error');}}
+async function updateLeaderboard(){try{const tradesRes=await fetch(`https://frontend-api.pump.fun/coins/${MINT_ID}/trades?limit=50`);const trades=await tradesRes.json();const buys=trades.filter(t=>t.type==='buy').slice(0,20);recentBuys=buys.map((buy,i)=>({wallet:buy.owner.slice(0,8)+'...',amount:(buy.solAmount/1e9).toFixed(3),usd:buy.usdAmount.toFixed(0),time:new Date().toLocaleTimeString()}));holders=recentBuys.slice(0,5).map((buy,i)=>({rank:i+1,wallet:buy.wallet,usd:buy.usd,reward:`${(i+1)*10}% Reward`}));renderLeaderboard();renderRecentBuys();}catch(e){holders=[{rank:1,wallet:'ApeKing69...',usd:1250,reward:'10% Reward'},{rank:2,wallet:'SolWhaleX...',usd:980,reward:'20% Reward'}];renderLeaderboard();}}
+function renderLeaderboard(){const container=document.getElementById('leaderboard');container.innerHTML='';holders.forEach(holder=>{const div=document.createElement('div');div.className='leader-item top5 new-buy';div.innerHTML=`<div><span class="rank">#${holder.rank}</span> ${holder.wallet}</div><div>$${holder.usd} <span class="reward-badge">${holder.reward}</span></div>`;container.appendChild(div);});}
+function renderRecentBuys(){const container=document.getElementById('recentBuys');container.innerHTML='';recentBuys.slice(0,10).forEach(buy=>{const div=document.createElement('div');div.className='leader-item new-buy';div.innerHTML=`<span>${buy.wallet}</span><span>$${buy.usd} (${buy.amount} SOL)</span>`;container.appendChild(div);});}
+updateTokenData();updateLeaderboard();setInterval(()=>{updateTokenData();updateLeaderboard();},5000);
+</script>
+</body>
+</html>
