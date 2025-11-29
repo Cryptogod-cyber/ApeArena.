@@ -2,50 +2,40 @@
 const MINT_ID='Hw15A3gHVDMxsM12rT2fwFg4ei4fMZvkLJcre2vWpump';
 let holders=[],recentBuys=[];
 
-// Particles
 particlesJS('particles',{particles:{number:{value:100},color:{value:['#ff006e','#8338ec','#3a86ff','#06ffa5','#ffd700']},size:{value:4},move:{speed:3}}});
 
-// FALLBACK DATA (while API loads)
-holders=[{rank:1,wallet:'TESTING...',usd:250,reward:'50% Reward'},{rank:2,wallet:'Warrior2...',usd:180,reward:'40% Reward'}];
+function renderLeaderboard(){
+  const container=document.getElementById('leaderboard');
+  container.innerHTML='';
+  holders.forEach(holder=>{
+    const div=document.createElement('div');
+    div.className='leader-item top5 new-buy';
+    div.innerHTML=`<div><span class="rank">#${holder.rank}</span> ${holder.wallet}</div><div>$${holder.usd} <span class="reward-badge">${holder.reward}</span></div>`;
+    container.appendChild(div);
+  });
+}
+
+function renderRecentBuys(){
+  const container=document.getElementById('recentBuys');
+  container.innerHTML='';
+  recentBuys.slice(0,10).forEach(buy=>{
+    const div=document.createElement('div');
+    div.className='leader-item new-buy';
+    div.innerHTML=`<span>${buy.wallet}</span><span>$${buy.usd} (${buy.amount} SOL)</span>`;
+    container.appendChild(div);
+  });
+}
+
+// FALLBACK DATA
+holders=[{rank:1,wallet:'🚀 BUY NOW!',usd:250,reward:'50% Reward'},{rank:2,wallet:'Warrior2..',usd:180,reward:'40% Reward'}];
 renderLeaderboard();
 
 async function updateTokenData(){
   try {
-    // TRY MULTIPLE ENDPOINTS
-    const endpoints = [
-      `https://frontend-api.pump.fun/coins/${MINT_ID}`,
-      `https://api.pump.fun/coins/${MINT_ID}`,
-      `https://pumpapi.fun/coins/${MINT_ID}`
-    ];
-    
-    for(let url of endpoints) {
-      try {
-        const res = await fetch(url);
-        if(res.ok) {
-          const data = await res.json();
-          document.getElementById('ticker').innerHTML = `$${data.price || 0}<br>MC: $${(data.mc || 0).toLocaleString()}`;
-          break;
-        }
-      } catch(e) {}
-    }
-  } catch(e) {
-    document.getElementById('ticker').innerHTML = '$0.000001<br>MC: $0';
-  }
+    document.getElementById('ticker').innerHTML='🦍 LIVE<br>Waiting for buys...';
+  } catch(e){}
 }
 
-async function updateLeaderboard(){
-  try {
-    const tradesRes = await fetch(`https://frontend-api.pump.fun/coins/${MINT_ID}/trades?limit=50`);
-    const trades = await tradesRes.json();
-    // ... rest of leaderboard code
-  } catch(e) {
-    console.log('API loading...');
-  }
-}
-
-// Initial load + auto refresh
 updateTokenData();
-setInterval(updateTokenData, 5000);
-function renderLeaderboard(){ /* your existing function */ }
+setInterval(updateTokenData,5000);
 </script>
-
