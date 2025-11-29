@@ -26,14 +26,12 @@ function renderRecentBuys(){
   });
 }
 
-// FALLBACK DATA
+// FALLBACK DATA - Shows immediately
 holders=[{rank:1,wallet:'🚀 BUY NOW!',usd:250,reward:'50% Reward'},{rank:2,wallet:'Warrior2..',usd:180,reward:'40% Reward'}];
 renderLeaderboard();
 
 async function updateTokenData(){
-  try {
-    document.getElementById('ticker').innerHTML='🦍 LIVE<br>Waiting for buys...';
-  } catch(e){}
+  document.getElementById('ticker').innerHTML='🦍 LIVE<br>Waiting for buys...';
 }
 
 updateTokenData();
